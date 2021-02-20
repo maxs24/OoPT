@@ -11,7 +11,9 @@ class TaskInstanceCreateStructure(_descr: String, _tech: ArrayList<String>, _dea
     private var prize : Int = 0;// премия за выполение в срок
     private val deadline: Date;
     private var status : Status;// статус задания
-    private var payment: Int; // оплата за задаине
+    private var payment: Int; // оплата за задание
+
+
 
     init{
         description = _descr;
@@ -19,6 +21,7 @@ class TaskInstanceCreateStructure(_descr: String, _tech: ArrayList<String>, _dea
         deadline = _deadline.clone() as Date;
         status = Status.WAITING;
         payment = _payment;
+
     }
 
     constructor(_descr: String, _tech: ArrayList<String>, _deadline: Date, _prize: Int, _payment:Int): this(_descr, _tech, _deadline, _payment){
