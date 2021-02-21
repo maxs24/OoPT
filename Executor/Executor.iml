@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="ClientRuntime" level="project" />
-    <orderEntry type="module" module-name="Executor" />
+    <orderEntry type="library" name="KotlinJavaRuntime (5)" level="project" />
+    <orderEntry type="module" module-name="TaskInstance" />
   </component>
 </module>
