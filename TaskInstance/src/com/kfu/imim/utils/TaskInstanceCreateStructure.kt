@@ -23,7 +23,6 @@ class TaskInstanceCreateStructure(_descr: String, _tech: ArrayList<Tech>, _deadl
         val calendar: Calendar = Calendar.getInstance();
         datecreation = Date(calendar.get(Calendar.YEAR)-1900,calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH))
     }
-
     constructor(_descr: String, _tech: ArrayList<Tech>, _deadline: Date, _prize: Int): this(_descr, _tech, _deadline){
         prize = _prize;
     }
@@ -35,7 +34,6 @@ class TaskInstanceCreateStructure(_descr: String, _tech: ArrayList<Tech>, _deadl
     public fun getDescription(): String{
         return description;
     }
-
     public fun getTechnologies(): ArrayList<Tech>{
         val new_technologies: ArrayList<Tech> = arrayListOf();
         new_technologies.addAll(technologies);
