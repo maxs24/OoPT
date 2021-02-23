@@ -2,6 +2,7 @@ package com.kfu.imim.networking
 
 import java.io.*
 import java.net.Socket
+import java.net.SocketException
 import kotlin.concurrent.thread
 
 class Communicator(
@@ -17,10 +18,10 @@ class Communicator(
         active = true
     }
 
-    fun addDataRecievedListener(l: (String)->Unit){
+    fun addDataReceivedListener(l: (String)->Unit){
         dataReceivedListeners.add(l)
     }
-    fun removeDataRecievedListener(l: (String)->Unit){
+    fun removeDataReceivedListener(l: (String)->Unit){
         dataReceivedListeners.remove(l)
     }
 
@@ -33,7 +34,7 @@ class Communicator(
                         it.invoke(value)
                     }
                 }
-            } catch (e: Exception){
+            } catch (e: SocketException){
                 active = false
                 if (!socket.isClosed) socket.close()
                 println("Обмен данными неожиданно прекращен!")
@@ -47,7 +48,7 @@ class Communicator(
             try{
                 val br = BufferedReader(InputStreamReader(socket.getInputStream()))
                 data = br.readLine()
-            } catch (e: Exception){
+            } catch (e: SocketException){
                 println("Не удалось прочитать данные из сети")
                 active = false
                 data = null
@@ -63,29 +64,32 @@ class Communicator(
                 pw.println(data)
                 pw.flush()
             }
-        } catch (e: Exception){
+        } catch (e: SocketException){
             println("Не удалось отправить данные в сеть")
             active = false
         }
     }
 
     fun start(){
-        thread{
-            if (communicationProcess?.isAlive == true)
-                stop()
-            active = true
-            communicationProcess = thread{
-                communicate()
-            }
+        if (communicationProcess?.isAlive == true)
+            stop()
+        active = true
+        communicationProcess = thread{
+            communicate()
         }
     }
 
     fun stop(){
-        active = false
-        if (communicationProcess?.isAlive == true){
-            communicationProcess?.interrupt()
+        try{
+            active = false
+            if (communicationProcess?.isAlive == true){
+                communicationProcess?.interrupt()
+            }
+        } catch (e: InterruptedException) {
             communicationProcess?.join()
         }
-        if (!socket.isClosed) socket.close()
+        finally {
+            if (!socket.isClosed) socket.close()
+        }
     }
 }

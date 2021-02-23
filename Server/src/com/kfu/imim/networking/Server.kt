@@ -1,6 +1,6 @@
 package com.kfu.imim.networking
 
-import com.kfu.imim.networking.Communicator
+import ArgsParser
 import java.net.ServerSocket
 import java.net.Socket
 import java.sql.*
@@ -12,29 +12,25 @@ import kotlin.system.exitProcess
 //TODO(Сделать реакцию на завершение задач)
 //TODO(Сделать ответы на запросы клиентов)
 //TODO(Особенно сделать ответ на запрос балансировщика)
-class Server private constructor(){
 
-    private val serverSocket: ServerSocket
-    private var stop = false //флаг остановлен ли сервер. По умолчанию - нет
-    private val connectedClient = mutableListOf<ConnectedClient>() //список подключенных клиентов (онлайн)
+class Server private constructor(argsParser: ArgsParser){
 
-    companion object {
-        private const val PORT = 5703
-        private val srv: Server = Server()
-
-        fun getInstance(): Server {
-            return srv
+     companion object {
+        private var srv: Server? = null
+        fun getInstance(argsParser: ArgsParser): Server {
+            if (srv == null)
+                srv = Server(argsParser)
+            return srv as Server
         }
     }
 
     inner class ConnectedClient(socket: Socket){ //Класс подключенного клиента
 
-        private val communicator: Communicator
+        private val communicator: Communicator = Communicator(socket)
         private var name: String? = null
 
         init{
-            communicator = Communicator(socket)
-            communicator.addDataRecievedListener(::dataReceived)
+            communicator.addDataReceivedListener(::dataReceived)
             communicator.start()
         }
 
@@ -43,19 +39,30 @@ class Server private constructor(){
             val vls = data.split("=", limit = 2)
             if (vls.size == 2){
                 when (vls[0]){ //when - это как switch на с++
+                    "login" -> login(vls[1])
+                    "logout" -> { communicator.sendData("goodbye") }
                    //TODO(Реакция на сообщения)
+                    else -> { }
                 }
             }
         }
 
         private fun login(data: String) {
-            val (user, password) = data.split('=', limit = 2)
+            val (user, password) = data.split(':', limit = 2)
             //TODO(link DB)
-            val rs = stmt.executeQuery("SELECT * FROM users WHERE login = '$user' AND password = '$password'")
+            val rs = stmt.executeQuery("SELECT `ID` FROM users WHERE login = '$user' AND password = SHA1('$password')")
             if (rs.next()) {
                 //TODO(Обработать данные пользователя из БД)
-                communicator.sendData("login=ok=$user")
-                name = user
+
+                val id = rs.getInt("ID").toString()
+                val rss = stmt.executeQuery("SELECT `ID` FROM executors WHERE ID = '$id'")
+                if (rss.next()) {
+                    communicator.sendData("login=ok:Executor:$id")
+                }
+                else {
+                    communicator.sendData("login=ok:Customer:$id")
+                }
+                name = id
             }
             else {
                 communicator.sendData("login=fail")
@@ -63,25 +70,33 @@ class Server private constructor(){
         }
     }
 
+    //TODO(Сделать параметрами из командной строки)
+
+    private val connectedClient = mutableListOf<ConnectedClient>() //список подключенных клиентов (онлайн)
+    private val serverSocket: ServerSocket
+    private var stop = false //флаг остановлен ли сервер. По умолчанию - нет
     private val db : Connection//соединение с СУБД
-    private val host = "localhost"
-    private val db_port = "3306" //порт, на котором напущена СУБД
-    private val db_name = "clients" //название БД в mysql
+    private val port: Int = argsParser.serverPort
+    private val host = argsParser.dbAddress
+    private val dbPort = argsParser.dbPort //порт, на котором напущена СУБД
+    private val dbName = argsParser.dbName //название БД в mysql
     private val stmt: Statement //выражения, отправляемые СУБД
 
     init{
-        serverSocket = ServerSocket(PORT)
+        serverSocket = ServerSocket(port)
+        //TODO(Исправить на ввод с клавиатуры)
         print("Логин пользовотеля от СУБД: ")
-        val login = readLine() ?: "" //логин от СУБД
+        val login = argsParser.dbLogin //логин от СУБД
         print("Пароль от СУБД: ")
-        val psw = readLine() ?: "" //пароль от СУБД
+        val psw = argsParser.dbPassword //пароль от СУБД
         val connectionProperties = Properties()
         connectionProperties["user"] = login
         connectionProperties["password"] = psw
         connectionProperties["serverTimezone"] = "UTC"
+        connectionProperties["autoReconnect"] = true
         try {
             //подключаемся к СУБД
-            db = DriverManager.getConnection("jdbc:mysql://$host:$db_port/$db_name", connectionProperties)
+            db = DriverManager.getConnection("jdbc:mysql://$host:$dbPort/$dbName", connectionProperties)
         }
         catch (ex: Exception) {
             //ловим ошибку при создании соединения

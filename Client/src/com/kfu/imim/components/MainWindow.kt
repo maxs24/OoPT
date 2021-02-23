@@ -1,101 +1,56 @@
 package com.kfu.imim.components
 
+
 import Client
+import CustomerInfo
+import ExecutorInfo
 import UserType
+import com.kfu.imim.components.layouts.*
 import com.kfu.imim.utils.TaskInstanceCreateStructure
 import javax.swing.*
 import java.awt.Dimension
 
 val window = MainWindow()
+
 //Здесь непосредственно вся отрисовка. ВСЕ ВЗАИМОДЕЙСТВИЯ ЧЕРЕЗ КЛАСС CLIENT, тут только рисование
-class MainWindow: JFrame("Оптимизация производственных задач") {
+class MainWindow(): JFrame("Оптимизация производственных задач") {
     //Нарисовать окно авторизации, после авторизации отрисовать разные окна в зависимости от
     // того заказчик или исполнитель авторизовался. Отрисовывать рекомендации по создаваемой задаче
     //Для исполнителей выдавать подсказки при создании и заполнении профиля
-
-    val taLogin = JTextField("Login")
-    val taPassword = JPasswordField("password")
-    val btnAccept = JButton("Войти")
-    var client = Client.getInstance()
 
     init {
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         minimumSize = Dimension(800, 600)
 
-        btnAccept.addActionListener {
-            client.login(taLogin.text, taPassword.password.toString())
-        }
-
-        val gl = GroupLayout(contentPane)
-        layout = gl
-        gl.setHorizontalGroup(
-                gl.createSequentialGroup()
-                        .addGap(4, 10, Int.MAX_VALUE)
-                        .addGroup(
-                                gl.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                        .addComponent(
-                                                taLogin,
-                                                GroupLayout.Alignment.CENTER,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                minimumSize.width/4)
-                                        .addComponent(
-                                                taPassword,
-                                                GroupLayout.Alignment.CENTER,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                minimumSize.width/4)
-                                        .addComponent(
-                                                btnAccept,
-                                                GroupLayout.Alignment.CENTER,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                minimumSize.width/4)
-                        )
-                        .addGap(4, 10, Int.MAX_VALUE)
-        )
-
-        gl.setVerticalGroup(
-                gl.createSequentialGroup()
-                        .addGap(4, 10, Int.MAX_VALUE)
-                        .addGroup(
-                                gl.createSequentialGroup()
-                                        .addComponent(taLogin, 25, 30, 40)
-                                        .addComponent(taPassword, 25, 30, 40)
-                                        .addComponent(btnAccept, 25, 30, 40)
-                        )
-                        .addGap(4, 10, Int.MAX_VALUE)
-        )
-        pack()
+        layout = LoginLayout(contentPane)
         isVisible = true
+
+        pack()
     }
 
-    fun chooseUserType(userType: UserType, name: String) {
+    fun chooseUserType(userType: UserType, id: String) {
+        //TODO(Получить инфу по id)
+        contentPane.removeAll()
         layout = when(userType) {
             UserType.Customer -> {
-                createCustomerLayout(name)
+                val customerLayoutCreationStructure =
+                        CustomerLayoutCreationStructure(Client.getInstance().clientInfo as CustomerInfo, contentPane)
+                val customerLayout = CustomerLayout(customerLayoutCreationStructure)
+                customerLayout.createLayout()
             }
             UserType.Executor -> {
-                createExecutorLayout(name)
+                val executorLayoutCreationStructure =
+                        ExecutorLayoutCreationStructure(Client.getInstance().clientInfo as ExecutorInfo, contentPane)
+                val executorLayout = ExecutorLayout(executorLayoutCreationStructure)
+                executorLayout.createLayout()
+            }
+            UserType.None -> {
+                layout //TODO(Сделать регистрацию)
             }
         }
-    }
-
-    private fun createCustomerLayout (name: String) : GroupLayout {
-        val gl = GroupLayout(contentPane)
-        //TODO(Сделать окно заказчика)
-        pack()
-        return gl
-    }
-
-    private fun createExecutorLayout (name: String) : GroupLayout {
-        val gl = GroupLayout(contentPane)
-        //TODO(Сделать окно исполнителя)
-        pack()
-        return gl
     }
 
     fun getRecommendations(taskInstanceCreateStructure: TaskInstanceCreateStructure) {
-        client.getRecommendations(taskInstanceCreateStructure)
+        Client.getInstance().getRecommendations(taskInstanceCreateStructure)
     }
 }

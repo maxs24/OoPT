@@ -9,13 +9,13 @@ class TaskInstance(_taskInstanceCreateStructure: TaskInstanceCreateStructure, _s
     private val subtasks: Array<SubTask>; // массив подзадач(нужно для прогресса)
 
     init {
-        taskInstanceCreateStructure = _taskInstanceCreateStructure.clone();
-        subtasks = _subtasks.copyOf();
+        taskInstanceCreateStructure = _taskInstanceCreateStructure.clone()
+        subtasks = _subtasks.copyOf()
     }
 
     public fun addExecutor(value: Person){
         if(executors.size == 0){
-            taskInstanceCreateStructure.setStatus(Status.INWORK);
+            taskInstanceCreateStructure.setStatus(Status.INWORK)
         }
         executors.add(value);
     }
