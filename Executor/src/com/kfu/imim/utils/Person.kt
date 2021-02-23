@@ -4,7 +4,7 @@ package com.kfu.imim.utils
 
 class Person(_fullname: String, _freehours: Int) {
     private val fullname: String; //ФИО исполнителя
-    private val technologies: ArrayList<String> = arrayListOf();//список освоенных технологий
+    private val technologies: ArrayList<Tech> = arrayListOf();//список освоенных технологий
     private var freehours: Int;// количество свободных часов в неделю
     private val currentTasks: ArrayList<TaskInstance> = arrayListOf();// список взятых задач
 
@@ -13,11 +13,11 @@ class Person(_fullname: String, _freehours: Int) {
         freehours = _freehours;
     }
 
-    constructor(_fullname: String, _freehours: Int, _technologies: ArrayList<String>): this(_fullname,_freehours){
+    constructor(_fullname: String, _freehours: Int, _technologies: ArrayList<Tech>): this(_fullname,_freehours){
         technologies.addAll(_technologies);
     }
 
-    public fun addTechnology(value: String){
+    public fun addTechnology(value: Tech){
         technologies.add(value);
     }
 
@@ -41,8 +41,8 @@ class Person(_fullname: String, _freehours: Int) {
         return freehours;
     }
 
-    public fun getTechnologies(): ArrayList<String>{
-        val new_technologies: ArrayList<String> = arrayListOf();
+    public fun getTechnologies(): ArrayList<Tech>{
+        val new_technologies: ArrayList<Tech> = arrayListOf();
         new_technologies.addAll(technologies);
         return new_technologies;
     }

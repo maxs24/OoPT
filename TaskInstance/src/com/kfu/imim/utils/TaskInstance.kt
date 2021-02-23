@@ -27,5 +27,19 @@ class TaskInstance(_taskInstanceCreateStructure: TaskInstanceCreateStructure, _s
             taskInstanceCreateStructure.setStatus(Status.COMPLETE);
         }
     }
+
+    public fun getTaskInstanceSturcture(): TaskInstanceCreateStructure{
+        return taskInstanceCreateStructure.clone();
+    }
+
+    public fun getProgress(): Int{
+        return progress;
+    }
+
+    public fun getExecutors(): ArrayList<Person>{
+        val new_executors: ArrayList<Person> = ArrayList();
+        new_executors.addAll(executors);
+        return new_executors;
+    }
 }
 
