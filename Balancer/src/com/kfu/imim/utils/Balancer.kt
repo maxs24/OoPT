@@ -15,4 +15,9 @@ object Balancer {
         //Вызывается из окна отрисовки клиента. Само собой этих исполнителей ещё надо получить
         return Recommendations()
     }
+
+    fun balance (taskInstanceCreateStructure: TaskInstanceCreateStructure) : Recommendations {
+
+        return Recommendations()
+    }
 }

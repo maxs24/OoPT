@@ -9,13 +9,13 @@ class TaskInstance(_taskInstanceCreateStructure: TaskInstanceCreateStructure, _s
     private val subtasks: Array<SubTask>; // массив подзадач(нужно для прогресса)
 
     init {
-        taskInstanceCreateStructure = _taskInstanceCreateStructure.clone();
-        subtasks = _subtasks.copyOf();
+        taskInstanceCreateStructure = _taskInstanceCreateStructure.clone()
+        subtasks = _subtasks.copyOf()
     }
 
     public fun addExecutor(value: Person){
         if(executors.size == 0){
-            taskInstanceCreateStructure.setStatus(Status.INWORK);
+            taskInstanceCreateStructure.setStatus(Status.INWORK)
         }
         executors.add(value);
     }
@@ -26,6 +26,20 @@ class TaskInstance(_taskInstanceCreateStructure: TaskInstanceCreateStructure, _s
         if(progress == 100){
             taskInstanceCreateStructure.setStatus(Status.COMPLETE);
         }
+    }
+
+    public fun getTaskInstanceSturcture(): TaskInstanceCreateStructure{
+        return taskInstanceCreateStructure.clone();
+    }
+
+    public fun getProgress(): Int{
+        return progress;
+    }
+
+    public fun getExecutors(): ArrayList<Person>{
+        val new_executors: ArrayList<Person> = ArrayList();
+        new_executors.addAll(executors);
+        return new_executors;
     }
 }
 
